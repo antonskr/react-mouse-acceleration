@@ -1,0 +1,47 @@
+{
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "name": "react-mouse-acceleration",
+  "description": "React hook for checking mouse acceleration",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "me"
+  },
+  "license": "MIT",
+  "version": "1.0.4",
+  "keywords": [
+    "react",
+    "hook",
+    "mouse",
+    "check",
+    "detect",
+    "acceleration",
+    "mouse speed",
+    "react hook",
+    "check mouse speed",
+    "detect mouse speed",
+    "react mouse speed",
+    "detect mouse acceleration",
+    "check mouse acceleration",
+    "react mouse acceleration",
+    "react check mouse acceleration",
+    "react detect mouse acceleration",
+    "react detect mouse acceleration hook",
+    "mouse acceleration hook",
+    "check mouse acceleration hook",
+    "detect mouse acceleration hook"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.17",
+    "typescript": "^5.1.6"
+  }
+}
