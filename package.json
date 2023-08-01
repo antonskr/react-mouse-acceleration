@@ -34,6 +34,10 @@
     "check mouse acceleration hook",
     "detect mouse acceleration hook"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antonskr/react-mouse-acceleration"
+  },
   "scripts": {
     "build": "tsc"
   },
@@ -41,6 +45,7 @@
     "react": "^16.8.0 || ^17 || ^18"
   },
   "devDependencies": {
+    "react": "^18.2.0",
     "@types/react": "^18.2.17",
     "typescript": "^5.1.6"
   }
