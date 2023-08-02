@@ -79,10 +79,10 @@ const useMouseAcceleration = (): MouseAcceleration => {
     };
 
     if (
-      metrics.speed ||
-      metrics.verticalSpeed ||
-      metrics.horizontalSpeed ||
-      metrics.acceleration ||
+      metrics.speed &&
+      metrics.verticalSpeed &&
+      metrics.horizontalSpeed &&
+      metrics.acceleration &&
       metrics.horizontalAcceleration
     ) {
       isCalculating.current = false;
