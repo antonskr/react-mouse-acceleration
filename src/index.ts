@@ -1,54 +1,52 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 type MouseAcceleration = {
+  x: number;
+  y: number;
   speed: number;
+  verticalSpeed: number;
   horizontalSpeed: number;
-  acceleration: number;
-  horizontalAcceleration: number;
+  verticalDirection: number;
   horizontalDirection: number;
+  acceleration: number;
+  verrticalAcceleration: number;
+  horizontalAcceleration: number;
 };
 
 const useMouseAcceleration = (): MouseAcceleration => {
-  const [mouse, setMouse] = useState<MouseAcceleration>({
-    speed: 0,
-    horizontalSpeed: 0,
-    acceleration: 0,
-    horizontalAcceleration: 0,
-    horizontalDirection: 0,
-  });
-
-  const mouseRef = useRef<{
-    x: number;
-    y: number;
-    speed: number;
-    prevSpeed: number;
-    horizontalSpeed: number;
-    acceleration: number;
-    horizontalAcceleration: number;
-    prevHorizontalSpeed: number;
-    horizontalDirection: number;
-    prevEvent: MouseEvent | null;
-    currentEvent: MouseEvent | null;
-  }>({
+  const [mouseMetrics, setMouseMetrics] = useState<MouseAcceleration>({
     x: 0,
     y: 0,
     speed: 0,
-    prevSpeed: 0,
+    verticalSpeed: 0,
     horizontalSpeed: 0,
-    acceleration: 0,
-    horizontalAcceleration: 0,
-    prevHorizontalSpeed: 0,
+    verticalDirection: 0,
     horizontalDirection: 0,
+    acceleration: 0,
+    verrticalAcceleration: 0,
+    horizontalAcceleration: 0,
+  });
+
+  const mouseRef = useRef<{
+    prevSpeed: number;
+    prevVerticalSpeed: number;
+    prevHorizontalSpeed: number;
+    prevEvent: MouseEvent | null;
+    currentEvent: MouseEvent | null;
+  }>({
+    prevSpeed: 0,
+    prevVerticalSpeed: 0,
+    prevHorizontalSpeed: 0,
     prevEvent: null,
     currentEvent: null,
   });
 
-  const lastSpeedCalculation = useRef<number>(0);
   const rafRef = useRef<number>(0);
+  const lastSpeedCalculation = useRef<number>(0);
   const prevRafTimestamp = useRef<number | null>(null);
-  const isAnimationActive = useRef<boolean>(false);
+  const isCalculating = useRef<boolean>(false);
 
-  const calculateSpeed = (timestamp: number): void => {
+  const calculateMouseMetrics = (timestamp: number): void => {
     if (timestamp - lastSpeedCalculation.current < 100) {
       return;
     }
@@ -60,91 +58,88 @@ const useMouseAcceleration = (): MouseAcceleration => {
       return;
     }
 
-    const offsetX =
-      mouseRef.current.currentEvent.screenX -
-      mouseRef.current.prevEvent.screenX;
-    const offsetY =
-      mouseRef.current.currentEvent.screenY -
-      mouseRef.current.prevEvent.screenY;
+    const offsetX = mouseRef.current.currentEvent.screenX - mouseRef.current.prevEvent.screenX;
+    const offsetY = mouseRef.current.currentEvent.screenY - mouseRef.current.prevEvent.screenY;
     const movementX = Math.abs(offsetX);
     const movementY = Math.abs(offsetY);
     const movement = Math.sqrt(movementX * movementX + movementY * movementY);
-    const speed = 10 * movement;
 
-    mouseRef.current.speed = speed;
-    mouseRef.current.horizontalSpeed = 10 * movementX;
-    mouseRef.current.horizontalDirection = Math.sign(offsetX);
-    mouseRef.current.acceleration = 10 * (speed - mouseRef.current.prevSpeed);
-    mouseRef.current.horizontalAcceleration =
-      10 *
-      (mouseRef.current.horizontalSpeed - mouseRef.current.prevHorizontalSpeed);
+    // mouse metrics
+    const metrics: MouseAcceleration = {
+      x: mouseRef.current.currentEvent.clientX,
+      y: mouseRef.current.currentEvent.clientY,
+      speed: 10 * movement,
+      verticalSpeed: 10 * movementY,
+      horizontalSpeed: 10 * movementX,
+      verticalDirection: Math.sign(offsetY),
+      horizontalDirection: Math.sign(offsetX),
+      acceleration: 10 * (10 * movement - mouseRef.current.prevSpeed),
+      verrticalAcceleration: 10 * (10 * movementY - mouseRef.current.prevVerticalSpeed),
+      horizontalAcceleration: 10 * (10 * movementX - mouseRef.current.prevHorizontalSpeed),
+    };
 
     if (
-      mouseRef.current.speed === 0 &&
-      mouseRef.current.horizontalSpeed === 0 &&
-      mouseRef.current.acceleration === 0 &&
-      mouseRef.current.horizontalAcceleration === 0
+      metrics.speed ||
+      metrics.verticalSpeed ||
+      metrics.horizontalSpeed ||
+      metrics.acceleration ||
+      metrics.horizontalAcceleration
     ) {
-      isAnimationActive.current = false;
+      isCalculating.current = false;
     }
 
-    setMouse({
-      speed: mouseRef.current.speed,
-      horizontalSpeed: mouseRef.current.horizontalSpeed,
-      acceleration: mouseRef.current.acceleration,
-      horizontalAcceleration: mouseRef.current.horizontalAcceleration,
-      horizontalDirection: mouseRef.current.horizontalDirection,
-    });
+    setMouseMetrics(Object.assign({}, metrics));
 
-    mouseRef.current.prevSpeed = speed;
-    mouseRef.current.prevHorizontalSpeed = mouseRef.current.horizontalSpeed;
+    mouseRef.current.prevSpeed = metrics.speed;
+    mouseRef.current.prevVerticalSpeed = metrics.verticalSpeed;
+    mouseRef.current.prevHorizontalSpeed = metrics.horizontalSpeed;
     mouseRef.current.prevEvent = mouseRef.current.currentEvent;
   };
 
-  const setMousePosition = (e: MouseEvent): void => {
-    mouseRef.current.x = e.clientX;
-    mouseRef.current.y = e.clientY;
-    mouseRef.current.currentEvent = e;
-  };
+  useEffect(() => {
+    const setMouseCurrentEvent = (e: MouseEvent): void => {
+      mouseRef.current.currentEvent = e;
+    };
 
-  const startCalculation = (): void => {
-    if (isAnimationActive.current) {
-      return;
-    }
-
-    isAnimationActive.current = true;
-
-    rafRef.current = requestAnimationFrame(function step(timestamp) {
-      if (!isAnimationActive.current) {
+    const startMouseCalculation = (): void => {
+      if (isCalculating.current) {
         return;
       }
 
-      if (!prevRafTimestamp.current) {
+      isCalculating.current = true;
+
+      const step = (timestamp: number): void => {
+        if (!isCalculating.current) {
+          return;
+        }
+
+        if (!prevRafTimestamp.current) {
+          prevRafTimestamp.current = timestamp;
+        }
+
         prevRafTimestamp.current = timestamp;
-      }
 
-      prevRafTimestamp.current = timestamp;
+        calculateMouseMetrics(timestamp);
+        rafRef.current = requestAnimationFrame(step);
+      };
 
-      calculateSpeed(timestamp);
       rafRef.current = requestAnimationFrame(step);
-    });
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent): void => {
-      setMousePosition(e);
-      startCalculation();
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    const handleMouseMove = (e: MouseEvent): void => {
+      setMouseCurrentEvent(e);
+      startMouseCalculation();
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  return mouse;
+  return mouseMetrics;
 };
 
 export default useMouseAcceleration;
