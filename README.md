@@ -55,6 +55,8 @@ type MouseAcceleration = {
 - `verticalAcceleration`: Represents the acceleration of the vertical mouse movement.
 - `horizontalAcceleration`: Represents the acceleration of the horizontal mouse movement.
 
+Using the values `speed`, `verticalSpeed`, and `horizontalSpeed` for animations is recommended because they provide smooth and consistent values of mouse speed. These values can be used to create smooth animations that respond to the user's mouse movements. Additionally, using mouse speed instead of raw mouse coordinates allows for more control over the animation speed and direction based on the user's input.
+
 ## License
 
 MIT
