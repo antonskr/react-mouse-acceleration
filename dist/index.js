@@ -50,11 +50,12 @@ const useMouseAcceleration = () => {
             verrticalAcceleration: 10 * (10 * movementY - mouseRef.current.prevVerticalSpeed),
             horizontalAcceleration: 10 * (10 * movementX - mouseRef.current.prevHorizontalSpeed),
         };
-        if (metrics.speed &&
-            metrics.verticalSpeed &&
-            metrics.horizontalSpeed &&
-            metrics.acceleration &&
-            metrics.horizontalAcceleration) {
+        if (metrics.speed === 0 &&
+            metrics.verticalSpeed === 0 &&
+            metrics.horizontalSpeed === 0 &&
+            metrics.acceleration === mouseMetrics.acceleration &&
+            metrics.verrticalAcceleration === mouseMetrics.verrticalAcceleration &&
+            metrics.horizontalAcceleration === mouseMetrics.horizontalAcceleration) {
             isCalculating.current = false;
         }
         setMouseMetrics(Object.assign({}, metrics));
